@@ -67,11 +67,6 @@ void main()
 
     BeginDrawing();
 
-    //TestPiece
-    piecePosX = 3;
-    piecePosY = 5;
-    AddPieceToBoard(piecePosX, piecePosY);
-
 
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -118,8 +113,8 @@ void main()
             DrawBoard();
         }
 
-        MoveLeft();
-
+        //MoveLeft();
+        MoveDown();
         //print piece pos
         //std::cout << "Piece Pos: " << piecePosX << ", " << piecePosY << "\n";
         DrawBoard();
@@ -147,9 +142,6 @@ void AddPieceToBoard(int xPos, int yPos)
             }
         }
     }
-    //update piece pos
-    piecePosX = xPos;
-    piecePosY = yPos;
     std::cout << "Piece Added At: " << piecePosX << ", " << piecePosY << "\n";
 }
 
