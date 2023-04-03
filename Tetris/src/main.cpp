@@ -9,9 +9,9 @@ const int pieceHeight = 5;
 int piece[pieceHeight][pieceWidth] =
 {
     {0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0},
     {0, 0, 1, 0, 0},
-    {0, 0, 0, 0, 0},
+    {0, 0, 1, 0, 0},
+    {0, 1, 1, 0, 0},
     {0, 0, 0, 0, 0}
 };
 
@@ -30,8 +30,8 @@ bool CheckMoveLeft();
 
 //board
 
-const int bCols = 10;
-const int bRows = 30;
+const int bCols = 20;
+const int bRows = 50;
 
 int tileWidth = 20;
 int tileHeight = 20;
@@ -60,7 +60,7 @@ void main()
     }
 
 
-    std::cout << "initialising window \n";
+    std::cout << "initialising window with" << windowWidth<< "x" <<windowHeight << "\n";
     InitWindow(windowWidth, windowHeight, "Tetris");
 
     SetTargetFPS(1);
@@ -76,19 +76,13 @@ void main()
         if (IsKeyPressed(KEY_DOWN))
         {
             std::cout << "Input Detected: Down \n";
-            //MoveDown();
+            MoveDown();
         }
 
         if (IsKeyPressed(KEY_LEFT))
         {
             std::cout << "Input Detected: Left \n";
-            if (CheckMoveLeft())
-            {
-                //RemovePiece(piecePosX, piecePosY);
-                //piecePosX--;
-                //AddPieceToBoard(piecePosX, piecePosY);
-                //DrawBoard();
-            }
+            MoveLeft();
         }
 
         if (IsKeyPressed(KEY_RIGHT))
@@ -106,28 +100,20 @@ void main()
         //if no piece add piece
         if (piecePosX == -1 && piecePosY == -1)
         {
-            piecePosX = 5;
-            piecePosY = -3;
+            piecePosX = bCols / 2;
+            piecePosY = 0 - (pieceHeight / 2);
             std::cout << "No Piece found, adding piece at: " << piecePosX << ", " << piecePosY << "\n";
             AddPieceToBoard(piecePosX, piecePosY);
             DrawBoard();
         }
-
-        //MoveLeft();
-        MoveDown();
-        //print piece pos
-        //std::cout << "Piece Pos: " << piecePosX << ", " << piecePosY << "\n";
         DrawBoard();
-
         EndDrawing();
-        //----------------------------------------------------------------------------------
     }
 
     // De-Initialization
     //--------------------------------------------------------------------------------------   
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
-
 }
 
 void AddPieceToBoard(int xPos, int yPos)
@@ -142,6 +128,8 @@ void AddPieceToBoard(int xPos, int yPos)
             }
         }
     }
+    piecePosX = xPos;
+    piecePosY = yPos;
     std::cout << "Piece Added At: " << piecePosX << ", " << piecePosY << "\n";
 }
 
@@ -244,22 +232,21 @@ bool CheckMoveDown()
 
 bool CheckMoveLeft()
 {
-    bool canMove = false;
+    bool isSpace = true;
 
-    //if piece is more than half off the screen
-    /*if (piecePosX < (0 - pieceWidth/2))
+    std::cout << "Checking CanMoveLeft with piece pos: " << piecePosX << "," << piecePosY << "\n";
+
+    //if more than half off board
+    if (piecePosX < (0 - (pieceWidth / 2)))
     {
         return false;
-    }*/
+    }
 
     //for each col move down the rows and check for piece
     //when you find the edge of the peice, if it is not at the edge of the board then move it
 
-    //Find the left edge
-
-
     //for each col
-    for (int c = 0; c < pieceWidth && !canMove < 0; c++)
+    for (int c = 0; c < pieceWidth && isSpace; c++)
     {
         //for each row
         for (int r = 0; r < pieceHeight; r++)
@@ -267,28 +254,20 @@ bool CheckMoveLeft()
             //if piece found
             if (piece[r][c] != 0)
             {
-                //if piece is on board
-                if (piecePosX + c > 0)
+                //check if edge
+                if (c == 0 || piece[r][c - 1] == 0)
                 {
-                    //check if there is space to the left on the board
-                    if (board[piecePosY + r][piecePosX + c - 1] == 0)
+                    //if space on board to left
+                    if (board[piecePosY + c - 1][piecePosX + r] != 0)
                     {
-                        canMove = true;
+                        return false;
                     }
-                    else
-                    {
-                        canMove = false;
-                    }
-
                 }
             }
         }
     }
 
-
-
-
-    return canMove;
+    return true;
 }
 
 bool CheckMoveRight()
@@ -321,15 +300,18 @@ bool CheckMoveRight()
 
 void MoveDown()
 {
+    int xPos = piecePosX;
+    int yPos = piecePosY;
+
     if (CheckMoveDown())
     {
         RemovePiece(piecePosX, piecePosY);
 
         //DrawBoard();
 
-        piecePosY++;
+        yPos++;
 
-        AddPieceToBoard(piecePosX, piecePosY);
+        AddPieceToBoard(xPos, yPos);
 
         //DrawBoard();
     }
@@ -342,21 +324,23 @@ void MoveDown()
 
 void MoveLeft()
 {
+    int xPos = piecePosX;
+    int yPos = piecePosY;
     if (CheckMoveLeft())
     {
+        
         RemovePiece(piecePosX, piecePosY);
 
         //DrawBoard();
 
-        piecePosX++;
+        xPos--;
 
-        AddPieceToBoard(piecePosX, piecePosY);
+        AddPieceToBoard(xPos, yPos);
 
         //DrawBoard();
     }
     else
     {
-        piecePosX = -1;
-        piecePosY = -1;
+        RemovePiece(piecePosX, piecePosY);
     }
 }
