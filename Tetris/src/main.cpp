@@ -23,6 +23,7 @@ void RemovePiece(int xPos, int yPos);
 void DrawBoard();
 void MoveDown();
 void MoveLeft();
+void MoveRight();
 void CheckFullRow();
 bool CheckMoveDown();
 bool CheckMoveRight();
@@ -31,7 +32,7 @@ bool CheckMoveLeft();
 //board
 
 const int bCols = 20;
-const int bRows = 50;
+const int bRows = 40;
 
 int tileWidth = 20;
 int tileHeight = 20;
@@ -63,7 +64,7 @@ void main()
     std::cout << "initialising window with" << windowWidth<< "x" <<windowHeight << "\n";
     InitWindow(windowWidth, windowHeight, "Tetris");
 
-    SetTargetFPS(1);
+    SetTargetFPS(5);
 
     BeginDrawing();
 
@@ -73,28 +74,22 @@ void main()
     {
 
         //read input
-        if (IsKeyPressed(KEY_DOWN))
+        if (IsKeyDown(KEY_DOWN))
         {
             std::cout << "Input Detected: Down \n";
             MoveDown();
         }
 
-        if (IsKeyPressed(KEY_LEFT))
+        if (IsKeyDown(KEY_LEFT))
         {
             std::cout << "Input Detected: Left \n";
             MoveLeft();
         }
 
-        if (IsKeyPressed(KEY_RIGHT))
+        if (IsKeyDown(KEY_RIGHT))
         {
             std::cout << "Input Detected: Right \n";
-            if (CheckMoveRight())
-            {
-                //RemovePiece(piecePosX, piecePosY);
-                //piecePosX++;
-                //AddPieceToBoard(piecePosX, piecePosY);
-                //DrawBoard();
-            }
+            MoveRight();
         }
 
         //if no piece add piece
@@ -107,6 +102,7 @@ void main()
             DrawBoard();
         }
         DrawBoard();
+        //MoveDown();
         EndDrawing();
     }
 
@@ -232,13 +228,12 @@ bool CheckMoveDown()
 
 bool CheckMoveLeft()
 {
-    bool isSpace = true;
-
     std::cout << "Checking CanMoveLeft with piece pos: " << piecePosX << "," << piecePosY << "\n";
 
     //if more than half off board
     if (piecePosX < (0 - (pieceWidth / 2)))
     {
+        std::cout << "piece at edge of board. returning false \n";
         return false;
     }
 
@@ -246,7 +241,7 @@ bool CheckMoveLeft()
     //when you find the edge of the peice, if it is not at the edge of the board then move it
 
     //for each col
-    for (int c = 0; c < pieceWidth && isSpace; c++)
+    for (int c = 0; c < pieceWidth; c++)
     {
         //for each row
         for (int r = 0; r < pieceHeight; r++)
@@ -254,12 +249,18 @@ bool CheckMoveLeft()
             //if piece found
             if (piece[r][c] != 0)
             {
+                if (piecePosX + c == 0)
+                {
+                    std::cout << "piece at edge of board. returning false \n";
+                    return false;
+                }
                 //check if edge
                 if (c == 0 || piece[r][c - 1] == 0)
                 {
                     //if space on board to left
-                    if (board[piecePosY + c - 1][piecePosX + r] != 0)
+                    if (board[piecePosY + r][piecePosX + c - 1] != 0)
                     {
+                        std::cout << "no space next to piece, returning false \n";
                         return false;
                     }
                 }
@@ -272,30 +273,47 @@ bool CheckMoveLeft()
 
 bool CheckMoveRight()
 {
-    bool canMove = true;
+    std::cout << "Checking CanMoveRight with piece pos: " << piecePosX << "," << piecePosY << "\n";
 
-    if (piecePosY > (bRows - pieceHeight))
+    //if more than half off board
+    if (piecePosX > (bCols + (pieceWidth / 2)))
     {
+        std::cout << "piece at edge of board. returning false \n";
         return false;
     }
 
-    //for each index of peice
-    for (int r = 0; r < pieceHeight; r++)
+    //for each col move down the rows and check for piece
+    //when you find the edge of the peice, if it is not at the edge of the board then move it
+
+    //for each col
+    for (int c = pieceWidth - 1; c > 0; c--)
     {
-        for (int c = 0; c < pieceWidth; c++)
+        //for each row
+        for (int r = 0; r < pieceHeight; r++)
         {
-            //if bottom of piece
-            if (piece[r][c] != 0 && piece[r + 1][c] == 0)
+            //if piece found
+            if (piece[r][c] != 0)
             {
-                //check space on board underneath
-                if (board[piecePosY + r + 1][piecePosX + c] != 0)
+                if (piecePosX + c == bCols)
                 {
-                    canMove = false;
+                    std::cout << "piece at edge of board. returning false \n";
+                    return false;
+                }
+                //check if edge
+                if (c == 0 || piece[r][c + 1] == 0)
+                {
+                    //if space on board to left
+                    if (board[piecePosY + r][piecePosX + c + 1] != 0)
+                    {
+                        std::cout << "no space next to piece, returning false \n";
+                        return false;
+                    }
                 }
             }
         }
     }
-    return canMove;
+
+    return true;
 }
 
 void MoveDown()
@@ -328,19 +346,27 @@ void MoveLeft()
     int yPos = piecePosY;
     if (CheckMoveLeft())
     {
-        
+        std::cout << "moving left \n";
         RemovePiece(piecePosX, piecePosY);
-
-        //DrawBoard();
 
         xPos--;
 
         AddPieceToBoard(xPos, yPos);
 
-        //DrawBoard();
     }
-    else
+}
+
+void MoveRight()
+{
+    int xPos = piecePosX;
+    int yPos = piecePosY;
+    if (CheckMoveRight())
     {
+        std::cout << "moving right \n";
         RemovePiece(piecePosX, piecePosY);
+
+        xPos++;
+
+        AddPieceToBoard(xPos, yPos);
     }
 }
