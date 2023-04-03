@@ -31,8 +31,8 @@ bool CheckMoveLeft();
 
 //board
 
-const int bCols = 20;
-const int bRows = 40;
+const int bCols = 10;
+const int bRows = 20;
 
 int tileWidth = 20;
 int tileHeight = 20;
@@ -102,7 +102,8 @@ void main()
             DrawBoard();
         }
         DrawBoard();
-        //MoveDown();
+        CheckFullRow();
+        MoveDown();
         EndDrawing();
     }
 
@@ -195,6 +196,20 @@ void CheckFullRow()
         {
             board[fRow][c] = 0;
         }
+    }
+
+    //move everything down
+    for (int r = fRow; r > 0; r--)
+    {
+        for (int c = 0; c < bCols; c++)
+        {
+            board[r][c] = board[r - 1][c];
+        }
+    }
+    //clear top row
+    for (int c = 0; c < bCols; c++)
+    {
+        board[0][c] = 0;
     }
 }
 
@@ -294,13 +309,13 @@ bool CheckMoveRight()
             //if piece found
             if (piece[r][c] != 0)
             {
-                if (piecePosX + c == bCols)
+                if (piecePosX + c == bCols - 1)
                 {
                     std::cout << "piece at edge of board. returning false \n";
                     return false;
                 }
                 //check if edge
-                if (c == 0 || piece[r][c + 1] == 0)
+                if (c == pieceWidth || piece[r][c + 1] == 0)
                 {
                     //if space on board to left
                     if (board[piecePosY + r][piecePosX + c + 1] != 0)
