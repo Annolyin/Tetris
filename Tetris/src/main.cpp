@@ -28,6 +28,8 @@ void CheckFullRow();
 bool CheckMoveDown();
 bool CheckMoveRight();
 bool CheckMoveLeft();
+void RotateRight();
+void RotateLeft();
 
 //board
 
@@ -92,6 +94,12 @@ void main()
             MoveRight();
         }
 
+        if (IsKeyDown(KEY_UP))
+        {
+            std::cout << "Input Detected: Up \n";
+            RotateRight();
+        }
+
         //if no piece add piece
         if (piecePosX == -1 && piecePosY == -1)
         {
@@ -103,7 +111,7 @@ void main()
         }
         DrawBoard();
         CheckFullRow();
-        MoveDown();
+        //MoveDown();
         EndDrawing();
     }
 
@@ -196,21 +204,21 @@ void CheckFullRow()
         {
             board[fRow][c] = 0;
         }
-    }
 
-    //move everything down
-    for (int r = fRow; r > 0; r--)
-    {
+        //move everything down
+        for (int r = fRow; r > 0; r--)
+        {
+            for (int c = 0; c < bCols; c++)
+            {
+                board[r][c] = board[r - 1][c];
+            }
+        }
+        //clear top row
         for (int c = 0; c < bCols; c++)
         {
-            board[r][c] = board[r - 1][c];
+            board[0][c] = 0;
         }
-    }
-    //clear top row
-    for (int c = 0; c < bCols; c++)
-    {
-        board[0][c] = 0;
-    }
+    }    
 }
 
 bool CheckMoveDown()
@@ -384,4 +392,36 @@ void MoveRight()
 
         AddPieceToBoard(xPos, yPos);
     }
+}
+
+void RotateRight()
+{
+    int posX = piecePosX;
+    int posY = piecePosY;
+    RemovePiece(piecePosX, piecePosY);
+    std::cout << "Rotating piece";
+    int pieceSize = pieceHeight;
+    for (int r = 0; r < pieceSize; r++) 
+    {
+        for (int c = 0; c < pieceSize - r; c++)
+        {
+            int temp = piece[r][c];
+            piece[r][c] = piece[pieceSize - 1 - c][pieceSize - 1 - r];
+            piece[pieceSize - 1 - c][pieceSize - 1 - r] = temp;
+        }
+    }
+    for (int r = 0; r < pieceSize / 2; r++) {
+        for (int c= 0; c < pieceSize; c++) {
+            int ptr = piece[r][c];
+            piece[r][c] = piece[pieceSize - 1 - r][c];
+            piece[pieceSize - 1 - r][c] = ptr;
+        }
+    }
+    AddPieceToBoard(posX, posY);
+    DrawBoard();
+}
+
+void RotateLeft()
+{
+
 }
