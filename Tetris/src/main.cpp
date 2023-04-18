@@ -148,59 +148,77 @@ void main()
     BeginDrawing();
 
     // Main game loop
-    while (!WindowShouldClose() && !lost)    // Detect window close button or ESC key
+    while (!WindowShouldClose())    // Detect window close button or ESC key
     {
         
-        //if no piece on the board add a piece
-        if (piecePosX == -100 && piecePosY == -100)
+        if (lost)
         {
-            piecePosX = bCols / 2;
-            piecePosY = 0 - (pieceHeight / 2);
-            //std::cout << "No Piece found, adding piece at: " << piecePosX << ", " << piecePosY << "\n";
-            GetRandomPiece(piece);
-            //PrintPiece();
-            AddPieceToBoard(piecePosX, piecePosY);
-        }
-        //Check for input down
-        if (IsKeyDown(KEY_DOWN))
-        {
-            //std::cout << "Input Detected: Down \n";
-            MoveDown();
-        }
-        //Check for input left
-        if (IsKeyDown(KEY_LEFT))
-        {
-            //std::cout << "Input Detected: Left \n";
-            MoveLeft();
-        }else
-        //Check for input right
-        if (IsKeyDown(KEY_RIGHT))
-        {
-            //std::cout << "Input Detected: Right \n";
-            MoveRight();
-        }else
-        //Check for input up/rotate
-        if (IsKeyDown(KEY_UP))
-        {
-            //std::cout << "Input Detected: Up \n";
-            RotateRight();
-        }
-        
-        DrawBoard();
-        //CheckFullRow();
-        //MoveDown();
-        EndDrawing();
-
-        //check lost
-        if (piecePosX == -100 && piecePosY == -100)
-        {
-            //if no piece check for stuff in the top row of the board
-            for (int i = 0; i < bCols && !lost; i++)
+            for (int r = 0; r < bRows; r++)
             {
-                if (board[0][i] != 0)
+                for (int c = 0; c < bCols; c++)
                 {
-                    std::cout << "Game Lost. Final Score: " << score << ".\n";
-                    lost = true;
+                    board[r][c] = 0;
+                }
+            }
+
+            DrawBoard();
+
+        }
+        else
+        {
+            //if no piece on the board add a piece
+            if (piecePosX == -100 && piecePosY == -100)
+            {
+                piecePosX = bCols / 2;
+                piecePosY = 0;
+                //std::cout << "No Piece found, adding piece at: " << piecePosX << ", " << piecePosY << "\n";
+                GetRandomPiece(piece);
+                //PrintPiece();
+                AddPieceToBoard(piecePosX, piecePosY);
+            }
+            //Check for input down
+            if (IsKeyDown(KEY_DOWN))
+            {
+                //std::cout << "Input Detected: Down \n";
+                MoveDown();
+            }
+            //Check for input left
+            if (IsKeyDown(KEY_LEFT))
+            {
+                //std::cout << "Input Detected: Left \n";
+                MoveLeft();
+            }
+            else
+                //Check for input right
+                if (IsKeyDown(KEY_RIGHT))
+                {
+                    //std::cout << "Input Detected: Right \n";
+                    MoveRight();
+                }
+                else
+                    //Check for input up/rotate
+                    if (IsKeyDown(KEY_UP))
+                    {
+                        //std::cout << "Input Detected: Up \n";
+                        RotateRight();
+                    }
+
+            DrawBoard();
+            //CheckFullRow();
+            //MoveDown();
+            EndDrawing();
+
+            //check lost
+            if (piecePosX == -100 && piecePosY == -100)
+            {
+                //if no piece check for stuff in the top row of the board
+                for (int i = 0; i < bCols && !lost; i++)
+                {
+                    if (board[0][i] != 0)
+                    {
+                        std::cout << "Game Lost. Final Score: " << score << ".\n";
+                        lost = true;
+                    }
                 }
             }
         }
