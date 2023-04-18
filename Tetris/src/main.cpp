@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include <iostream>
 
+
 //forward declare functions
 void AddPieceToBoard(int xPos, int yPos);
 void RemovePiece(int xPos, int yPos);
@@ -10,6 +11,7 @@ void DrawBoard();
 void MoveDown();
 void MoveLeft();
 void MoveRight();
+
 bool CheckFullRow();
 bool CheckMoveDown();
 bool CheckMoveRight();
@@ -23,8 +25,28 @@ void RotateRight();
 //height/width of piece
 const int pieceWidth = 5;
 const int pieceHeight = 5;
+//num of piece variants
+const int pieceCount = 7;
+
+void GetRandomPiece(int arr[pieceHeight][pieceWidth]);
+
 //array to hold current piece
-int piece[pieceHeight][pieceWidth] =
+int piece[pieceHeight][pieceWidth];
+//position of current piece
+int piecePosX = -100;
+int piecePosY = -100;
+
+    int piece0[pieceHeight][pieceWidth] =
+    {
+        {0, 0, 0, 0, 0},
+        {0, 0, 1, 0, 0},
+        {0, 0, 1, 0, 0},
+        {0, 0, 1, 1, 0},
+        {0, 0, 0, 0, 0}
+    };
+
+    // L Mirrored
+    int piece1[pieceHeight][pieceWidth] =
     {
         {0, 0, 0, 0, 0},
         {0, 0, 1, 0, 0},
@@ -32,10 +54,57 @@ int piece[pieceHeight][pieceWidth] =
         {0, 1, 1, 0, 0},
         {0, 0, 0, 0, 0}
     };
-//position of current piece
-int piecePosX = -1;
-int piecePosY = -1;
 
+
+    //Square
+    int piece2[pieceHeight][pieceWidth] =
+    {
+        { 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0 },
+        { 0, 0, 1, 1, 0 },
+        { 0, 0, 1, 1, 0 },
+        { 0, 0, 0, 0, 0 }
+    };
+
+    //Straight
+    int piece3[pieceHeight][pieceWidth] =
+    {
+        {0, 0, 0, 0, 0},
+        {0, 0, 1, 0, 0},
+        {0, 0, 1, 0, 0},
+        {0, 0, 1, 0, 0},
+        {0, 0, 1, 0, 0}
+    };
+
+    // Z Mirrored
+    int piece4[pieceHeight][pieceWidth] =
+    {
+        {0, 0, 0, 0, 0},
+        {0, 1, 1, 0, 0},
+        {0, 0, 1, 1, 0},
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0}
+    };
+
+    // Z 
+    int piece5[pieceHeight][pieceWidth] =
+    {
+        {0, 0, 0, 0, 0},
+        {0, 0, 0, 0, 0},
+        {0, 0, 1, 1, 0},
+        {0, 1, 1, 0, 0},
+        {0, 0, 0, 0, 0}
+    };
+
+    // T
+    int piece6[pieceHeight][pieceWidth] =
+    {
+        {0, 0, 0, 0, 0},
+        {0, 1, 1, 1, 0},
+        {0, 0, 1, 0, 0},
+        {0, 0, 1, 0, 0},
+        {0, 0, 0, 0, 0}
+    };
 
 /*
  * Board 
@@ -43,7 +112,7 @@ int piecePosY = -1;
 
 //board size
 const int bCols = 10;
-const int bRows = 20;
+const int bRows = 10;
 //tile size
 int tileWidth = 20;
 int tileHeight = 20;
@@ -53,6 +122,12 @@ int windowHeight = bRows * tileHeight;
 //board array
 char board[bRows][bCols];
 
+/*
+ * Score
+ */
+
+int score = 0;
+bool lost = false;
 
 void main()
 {
@@ -73,46 +148,62 @@ void main()
     BeginDrawing();
 
     // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    while (!WindowShouldClose() && !lost)    // Detect window close button or ESC key
     {
-
-        //Check for input down
-        if (IsKeyDown(KEY_DOWN))
-        {
-            std::cout << "Input Detected: Down \n";
-            MoveDown();
-        }
-        //Check for input left
-        if (IsKeyDown(KEY_LEFT))
-        {
-            std::cout << "Input Detected: Left \n";
-            MoveLeft();
-        }
-        //Check for input right
-        if (IsKeyDown(KEY_RIGHT))
-        {
-            std::cout << "Input Detected: Right \n";
-            MoveRight();
-        }
-        //Check for input up/rotate
-        if (IsKeyDown(KEY_UP))
-        {
-            std::cout << "Input Detected: Up \n";
-            RotateRight();
-        }
-
+        
         //if no piece on the board add a piece
         if (piecePosX == -100 && piecePosY == -100)
         {
             piecePosX = bCols / 2;
             piecePosY = 0 - (pieceHeight / 2);
-            std::cout << "No Piece found, adding piece at: " << piecePosX << ", " << piecePosY << "\n";
+            //std::cout << "No Piece found, adding piece at: " << piecePosX << ", " << piecePosY << "\n";
+            GetRandomPiece(piece);
+            //PrintPiece();
             AddPieceToBoard(piecePosX, piecePosY);
         }
+        //Check for input down
+        if (IsKeyDown(KEY_DOWN))
+        {
+            //std::cout << "Input Detected: Down \n";
+            MoveDown();
+        }
+        //Check for input left
+        if (IsKeyDown(KEY_LEFT))
+        {
+            //std::cout << "Input Detected: Left \n";
+            MoveLeft();
+        }else
+        //Check for input right
+        if (IsKeyDown(KEY_RIGHT))
+        {
+            //std::cout << "Input Detected: Right \n";
+            MoveRight();
+        }else
+        //Check for input up/rotate
+        if (IsKeyDown(KEY_UP))
+        {
+            //std::cout << "Input Detected: Up \n";
+            RotateRight();
+        }
+        
         DrawBoard();
         //CheckFullRow();
         //MoveDown();
         EndDrawing();
+
+        //check lost
+        if (piecePosX == -100 && piecePosY == -100)
+        {
+            //if no piece check for stuff in the top row of the board
+            for (int i = 0; i < bCols && !lost; i++)
+            {
+                if (board[0][i] != 0)
+                {
+                    std::cout << "Game Lost. Final Score: " << score << ".\n";
+                    lost = true;
+                }
+            }
+        }
     }
 
     // De-Initialization
@@ -135,7 +226,7 @@ void AddPieceToBoard(int xPos, int yPos)
     }
     piecePosX = xPos;
     piecePosY = yPos;
-    std::cout << "Piece Added At: " << piecePosX << ", " << piecePosY << "\n";
+    //std::cout << "Piece Added At: " << piecePosX << ", " << piecePosY << "\n";
 }
 
 void RemovePiece(int xPos, int yPos)
@@ -177,7 +268,7 @@ void DrawBoard()
 
 bool CheckFullRow()
 {
-    std::cout << "Checking for full row \n";
+    //std::cout << "Checking for full row \n";
     //check for full row 
     int fRow = -1;
     for (int r = 0; r < bRows && fRow < 0; r++)
@@ -191,7 +282,7 @@ bool CheckFullRow()
             }
             else
             {
-                std::cout << "Full row on row: " << r << "\n";
+                //std::cout << "Full row on row: " << r << "\n";
                 fRow = r;
             }
 
@@ -200,6 +291,7 @@ bool CheckFullRow()
     //clear out the row
     if (fRow >= 0)
     {
+        score += 10;
         for (int c = 0; c < bCols; c++)
         {
             board[fRow][c] = 0;
@@ -226,32 +318,6 @@ bool CheckFullRow()
 
 bool CheckMoveDown()
 {
-    //bool canMove = true;
-
-    //if (piecePosY > (bRows - pieceHeight))
-    //{
-    //    return false;
-    //}
-
-    ////for each index of peice
-    //for (int r = pieceHeight - 1; r >= 0; r--)
-    //{
-    //    for (int c = 0; c < pieceWidth; c++)
-    //    {
-    //        //if bottom of piece
-    //        if (piece[r][c] != 0 && piece[r + 1][c] == 0)
-    //        {
-    //            //check space on board underneath
-    //            if (board[piecePosY + r + 1][piecePosX + c] != 0)
-    //            {
-    //                canMove = false;
-    //            }
-    //        }
-    //    }
-    //}
-    //return canMove;
-
-    //for each col
     for (int r = pieceHeight - 1; r > 0; r--)
     {
         //for each row
@@ -262,7 +328,7 @@ bool CheckMoveDown()
             {
                 if (piecePosY + r == bRows - 1)
                 {
-                    std::cout << "piece at edge of board. returning false \n";
+                    //std::cout << "piece at edge of board. returning false \n";
                     return false;
                 }
                 //check if edge
@@ -271,7 +337,7 @@ bool CheckMoveDown()
                     //if space on board to left
                     if (board[piecePosY + r + 1][piecePosX + c] != 0)
                     {
-                        std::cout << "no space next to piece, returning false \n";
+                        //std::cout << "no space under to piece, returning false \n";
                         return false;
                     }
                 }
@@ -284,12 +350,12 @@ bool CheckMoveDown()
 
 bool CheckMoveLeft()
 {
-    std::cout << "Checking CanMoveLeft with piece pos: " << piecePosX << "," << piecePosY << "\n";
+    //std::cout << "Checking CanMoveLeft with piece pos: " << piecePosX << "," << piecePosY << "\n";
 
     //if more than half off board
     if (piecePosX < (0 - (pieceWidth / 2)))
     {
-        std::cout << "piece at edge of board. returning false \n";
+        //std::cout << "piece at edge of board. returning false \n";
         return false;
     }
 
@@ -307,7 +373,7 @@ bool CheckMoveLeft()
             {
                 if (piecePosX + c == 0)
                 {
-                    std::cout << "piece at edge of board. returning false \n";
+                    //std::cout << "piece at edge of board. returning false \n";
                     return false;
                 }
                 //check if edge
@@ -316,7 +382,7 @@ bool CheckMoveLeft()
                     //if space on board to left
                     if (board[piecePosY + r][piecePosX + c - 1] != 0)
                     {
-                        std::cout << "no space next to piece, returning false \n";
+                        //std::cout << "no space next to piece, returning false \n";
                         return false;
                     }
                 }
@@ -329,12 +395,12 @@ bool CheckMoveLeft()
 
 bool CheckMoveRight()
 {
-    std::cout << "Checking CanMoveRight with piece pos: " << piecePosX << "," << piecePosY << "\n";
+    //std::cout << "Checking CanMoveRight with piece pos: " << piecePosX << "," << piecePosY << "\n";
 
     //if more than half off board
     if (piecePosX > (bCols + (pieceWidth / 2)))
     {
-        std::cout << "piece at edge of board. returning false \n";
+        //std::cout << "piece at edge of board. returning false \n";
         return false;
     }
 
@@ -352,7 +418,7 @@ bool CheckMoveRight()
             {
                 if (piecePosX + c == bCols - 1)
                 {
-                    std::cout << "piece at edge of board. returning false \n";
+                    //std::cout << "piece at edge of board. returning false \n";
                     return false;
                 }
                 //check if edge
@@ -361,7 +427,7 @@ bool CheckMoveRight()
                     //if space on board to left
                     if (board[piecePosY + r][piecePosX + c + 1] != 0)
                     {
-                        std::cout << "no space next to piece, returning false \n";
+                        //std::cout << "no space next to piece, returning false \n";
                         return false;
                     }
                 }
@@ -406,7 +472,7 @@ void MoveLeft()
     int yPos = piecePosY;
     if (CheckMoveLeft())
     {
-        std::cout << "moving left \n";
+        //std::cout << "moving left \n";
         RemovePiece(piecePosX, piecePosY);
 
         xPos--;
@@ -422,7 +488,7 @@ void MoveRight()
     int yPos = piecePosY;
     if (CheckMoveRight())
     {
-        std::cout << "moving right \n";
+        //std::cout << "moving right \n";
         RemovePiece(piecePosX, piecePosY);
 
         xPos++;
@@ -436,10 +502,10 @@ void RotateRight()
     int posX = piecePosX;
     int posY = piecePosY;
     RemovePiece(piecePosX, piecePosY);
-    std::cout << "Rotating piece \n";
+    //std::cout << "Rotating piece \n";
     int pieceSize = pieceHeight;
-    std::cout << "Piece at start \n";
-    PrintPiece();
+    //std::cout << "Piece at start \n";
+    //PrintPiece();
     for (int r = 0; r < pieceSize; r++) 
     {
         for (int c = 0; c < pieceSize - r; c++)
@@ -449,8 +515,8 @@ void RotateRight()
             piece[pieceSize - 1 - c][pieceSize - 1 - r] = temp;
         }
     }
-    std::cout << "piece step 1 \n";
-    PrintPiece(); 
+    //std::cout << "piece step 1 \n";
+    //PrintPiece(); 
     //flip top/bottom
     for (int r = 0; r < pieceSize / 2; r++) {
         for (int c= 0; c < pieceSize; c++) {
@@ -459,8 +525,8 @@ void RotateRight()
             piece[pieceSize - 1 - r][c] = ptr;
         }
     }
-    std::cout << "piece at end \n";
-    PrintPiece(); 
+    //std::cout << "piece at end \n";
+    //PrintPiece(); 
     AddPieceToBoard(posX, posY);
     DrawBoard();
 }
@@ -474,5 +540,50 @@ void PrintPiece()
             std::cout << piece[row][col] << ", ";
         }
         std::cout << " \n";
+    }
+}
+
+void GetRandomPiece(int arr[pieceHeight][pieceWidth])
+{
+    //get random number
+    int num = rand() % pieceCount;
+    for (int row = 0; row < pieceHeight; row++)
+    {
+        for (int col = 0; col < pieceWidth; col++)
+        {
+            switch (num) {
+            case 0:
+                // code block
+                arr[row][col] = piece0[row][col];
+                break;
+            case 1:
+                // code block
+                arr[row][col] = piece1[row][col];
+                break;
+            case 2:
+                // code block
+                arr[row][col] = piece2[row][col];
+                break;
+            case 3:
+                // code block
+                arr[row][col] = piece3[row][col];
+                break;
+            case 4:
+                // code block
+                arr[row][col] = piece4[row][col];
+                break;
+            case 5:
+                // code block
+                arr[row][col] = piece5[row][col];
+                break;
+            case 6:
+                // code block
+                arr[row][col] = piece6[row][col];
+                break;
+            default:
+                // code block
+                arr[row][col] = piece0[row][col];
+            }
+        }
     }
 }
