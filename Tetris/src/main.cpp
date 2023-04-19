@@ -11,12 +11,13 @@ void DrawBoard();
 void MoveDown();
 void MoveLeft();
 void MoveRight();
+void RotateRight();
 
 bool CheckFullRow();
 bool CheckMoveDown();
 bool CheckMoveRight();
 bool CheckMoveLeft();
-void RotateRight();
+
 
 /*
  * Pieces
@@ -108,12 +109,12 @@ int piece[pieceHeight][pieceWidth];
  */
 
 //board size
-const int bCols = 10;
-const int bRows = 25;
+const int bCols = 15;
+const int bRows = 30;
 const int bMid = bCols / 2 - pieceWidth / 2;
 //tile size
-int tileWidth = 20;
-int tileHeight = 20;
+int tileWidth = 25;
+int tileHeight = 25;
 //window size
 int windowWidth = bCols * tileWidth;
 int windowHeight = bRows * tileHeight;
@@ -192,19 +193,19 @@ void main()
                 MoveLeft();
             }
             else
-                //Check for input right
-                if (IsKeyDown(KEY_RIGHT))
-                {
-                    //std::cout << "Input Detected: Right \n";
-                    MoveRight();
-                }
-                else
-                    //Check for input up/rotate
-                    if (IsKeyDown(KEY_UP))
-                    {
-                        //std::cout << "Input Detected: Up \n";
-                        RotateRight();
-                    }
+            //Check for input right
+            if (IsKeyDown(KEY_RIGHT))
+            {
+                //std::cout << "Input Detected: Right \n";
+                MoveRight();
+            }
+            else
+            //Check for input up/rotate
+            if (IsKeyDown(KEY_UP))
+            {
+                //std::cout << "Input Detected: Up \n";
+                RotateRight();
+            }
 
             DrawBoard();
             //CheckFullRow();
@@ -554,9 +555,6 @@ void RotateRight()
             piece[pieceSize - 1 - c][pieceSize - 1 - r] = temp;
         }
     }
-    //std::cout << "piece step 1 \n";
-    //PrintPiece(); 
-    //flip top/bottom
     for (int r = 0; r < pieceSize / 2; r++) {
         for (int c= 0; c < pieceSize; c++) {
             int ptr = piece[r][c];
@@ -564,8 +562,7 @@ void RotateRight()
             piece[pieceSize - 1 - r][c] = ptr;
         }
     }
-    //std::cout << "piece at end \n";
-    //PrintPiece(); 
+
     AddPieceToBoard(posX, posY);
     DrawBoard();
 }
