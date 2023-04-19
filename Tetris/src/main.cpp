@@ -32,9 +32,6 @@ void GetRandomPiece(int arr[pieceHeight][pieceWidth]);
 
 //array to hold current piece
 int piece[pieceHeight][pieceWidth];
-//position of current piece
-int piecePosX = -100;
-int piecePosY = -100;
 
     int piece0[pieceHeight][pieceWidth] =
     {
@@ -112,7 +109,8 @@ int piecePosY = -100;
 
 //board size
 const int bCols = 10;
-const int bRows = 10;
+const int bRows = 25;
+const int bMid = bCols / 2 - pieceWidth / 2;
 //tile size
 int tileWidth = 20;
 int tileHeight = 20;
@@ -121,6 +119,10 @@ int windowWidth = bCols * tileWidth;
 int windowHeight = bRows * tileHeight;
 //board array
 char board[bRows][bCols];
+
+//position of current piece
+int piecePosX = bMid;
+int piecePosY = 0;
 
 /*
  * Score
@@ -148,7 +150,7 @@ void main()
     BeginDrawing();
 
     // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
+    while (!WindowShouldClose() && !lost)    // Detect window close button or ESC key
     {
         
         if (lost)
@@ -167,14 +169,15 @@ void main()
         else
         {
             //if no piece on the board add a piece
-            if (piecePosX == -100 && piecePosY == -100)
+            if (piecePosY == 0)
             {
-                piecePosX = bCols / 2;
+                piecePosX = bMid;
                 piecePosY = 0;
                 //std::cout << "No Piece found, adding piece at: " << piecePosX << ", " << piecePosY << "\n";
                 GetRandomPiece(piece);
                 //PrintPiece();
                 AddPieceToBoard(piecePosX, piecePosY);
+                MoveDown();
             }
             //Check for input down
             if (IsKeyDown(KEY_DOWN))
@@ -209,7 +212,7 @@ void main()
             EndDrawing();
 
             //check lost
-            if (piecePosX == -100 && piecePosY == -100)
+            if (piecePosY == 0)
             {
                 //if no piece check for stuff in the top row of the board
                 for (int i = 0; i < bCols && !lost; i++)
@@ -218,16 +221,32 @@ void main()
                     {
                         std::cout << "Game Lost. Final Score: " << score << ".\n";
                         lost = true;
+                        ClearBackground(BLACK);
+                    }else
+                    if (board[1][i] != 0)
+                    {
+                        std::cout << "Game Lost. Final Score: " << score << ".\n";
+                        lost = true;
+                        ClearBackground(BLACK);
+                    }else
+                    if (board[2][i] != 0)
+                    {
+                        std::cout << "~~~Game Lost. Final Score: " << score << ".~~~\n";
+                        lost = true;
+                        ClearBackground(BLACK);
                     }
                 }
             }
         }
     }
 
+    ClearBackground(BLACK);
+
     // De-Initialization
     //--------------------------------------------------------------------------------------   
     CloseWindow();        // Close window and OpenGL context
     //--------------------------------------------------------------------------------------
+    std::cin.get();
 }
 
 void AddPieceToBoard(int xPos, int yPos)
@@ -260,8 +279,8 @@ void RemovePiece(int xPos, int yPos)
         }
     }
     //reset piece pos
-    piecePosX = -100;
-    piecePosY = -100;
+    piecePosX = bMid;
+    piecePosY = 0;
 }
 
 void DrawBoard()
@@ -475,12 +494,14 @@ void MoveDown()
     }
     else
     {
-        piecePosX = -100;
-        piecePosY = -100;
-        while (CheckFullRow())
-        {
-            //row removed
-        }
+        piecePosX = bMid;
+        piecePosY = 0;
+
+    }
+
+    while (CheckFullRow())
+    {
+        //check and remove full rows
     }
 }
 
